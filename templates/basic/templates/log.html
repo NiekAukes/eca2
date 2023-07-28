@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Neca Test</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="/static/lib/core.js"></script>
+<script src="/static/lib/tweets.js"></script>
+<script src="/static/lib/log.js"></script>
+<link rel="stylesheet" href="/static/style/tweet.css">
+</head>
+<body class="container_12">
+<h1>ECA Dashboard Template</h1>
+<ul id="messages"></ul>
+
+<!-- send a message to /send, but stay on the current site -->
+<div id="messages"></div>
+
+
+<script type="text/javascript" charset="utf-8">
+    add_block(logg("messages"));
+    connect_block("message", "messages");
+</script>
+</body>
+</html>

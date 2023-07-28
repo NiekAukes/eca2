@@ -1,0 +1,275 @@
+from time import sleep
+from typing import Callable, Any, Dict, List, Optional
+from eca.logging import logger
+from datetime import datetime, timedelta
+import functools
+
+
+
+class Rules:
+    """
+    a Rules object is a collection of rules that can be used to handle events.
+    rules are functions that take a context and an event as arguments.
+    they are called when an event is fired.
+    """
+
+    class Rule:
+        """
+        a rule is a function that takes a context and an event as arguments.
+        it is called when an event is fired.
+        
+        mostly used for internal bookkeeping. If you're a user,
+        you probably won't need to use this class directly.
+        """
+        def __init__(self, func: Callable[["Context", Any], None], keys: List[str]):
+            self.func = func
+            self.conditions = []
+            self.keys = keys
+            
+        def add_condition(self, condition: Callable[["Context", Any], bool]):
+            """
+            adds a condition to the rule.
+            """
+            self.conditions.append(condition)
+            
+        def check_conditions(self, context: Any, event: Any) -> bool:
+            """
+            checks if all conditions are met.
+            """
+            for condition in self.conditions:
+                if not condition(context, event):
+                    return False
+            return True
+            
+    
+    def __init__(self):
+        self.functions: Dict[Callable[["Context", Any], None], Rules.Rule] = {}
+        
+        # a dictionary of rules, indexed by event name
+        # "eventname": [rule1, rule2, ...]
+        # "eventname2": [rule3, rule4, ...]
+        self.index: Dict[str, List[Rules.Rule]] = {}
+        
+        
+    
+    def event(self, key: str):
+        """
+        decorator for event handlers, 
+        the decorated function will be called when emit(key, context) is called.
+        """
+        
+        def decorator(func: Callable[["Context", Any], None]):
+            # get or create the rule
+            rule = self.functions.get(func, Rules.Rule(func, []))
+            rule.keys.append(key)
+            
+            
+            # the function is indexed by the key
+            if key not in self.index:
+                self.index[key] = []
+                
+            # check if the rule is already in the index
+            if rule in self.index[key]:
+                # raise an error
+                raise ValueError(f"function already registered for event key: {key}. You can only register a function once per event key.")
+            self.index[key].append(rule)
+                
+            if func not in self.functions:
+                # register the function as a rule
+                # the function is indexed by itself
+                self.functions[func] = rule
+                
+            return func
+        return decorator
+        
+
+    #def fire(self, eventname: str, data: Any, delay: Optional[float] = None):
+    #    """
+    #    emits an event with the given name in the current context.
+    #    When this function is called, every function annotated with @event(key) is called.
+    #    with the given context.
+    #    """
+    #    # for now just call fire_global
+    #    fire_global(eventname, data, delay)
+
+
+    def condition(self, condition: Callable[["Context", Any], bool]):
+        """
+        sets a condition for an event handler. 
+        """
+        
+        def decorator(func: Callable[["Context", Any], None]):
+            
+            # check if function is registered
+            if func not in self.functions:
+                # add the function to the rules with an empty keyset
+                self.functions[func] = Rules.Rule(func, [])
+            
+            # add the condition to the rule
+            self.functions[func].add_condition(condition)
+            return func
+        
+        return decorator
+
+class Context:
+    def __init__(self, ruleset: Rules, name: Optional[str] = None):
+        self._data: Dict[Any, Any] = {}
+        self.ruleset = ruleset
+        
+        if name is None:
+            self.name = str(id(self))
+        else:
+            self.name = name
+            
+    
+    def __getitem__(self, key: Any):
+        return self._data[key]
+    
+    def __setitem__(self, key, value):
+        self._data[key] = value
+    
+    def __delitem__(self, key):
+        del self._data[key]
+    
+    def __contains__(self, key):
+        return key in self._data
+    
+    def __str__(self) -> str:
+        return f"Context({self.name})"
+    
+    def fire(self, key: str, data: Any = None, delay: Optional[float] = None):
+        """
+        emits an event with the given name in the current context.
+        When this function is called, every function annotated with @event(key) is called.
+        with the given context.
+        
+        key: the name of the event
+        data: the data to pass to the event handlers
+        delay: the delay in seconds before the event is fired
+        """
+        Manager.add_event(key, data, self, delay)
+    
+    def fire_immediate(self, key: str, data: Any):
+        """
+        emits an event with the given name in the current context.
+        When this function is called, every function annotated with @event(key) is called.
+        with the given context.
+        
+        WARNING: this function fires the event immediately, without waiting for the event loop.
+        
+        key: the name of the event
+        data: the data to pass to the event handlers
+        """
+            
+        # for now just use the global rules object
+        rules = self.ruleset.index.get(key, [])
+        if rules == []:
+            # no rules for this event, send a warning
+            # to notify what is going on
+            logger.warning(f"no rules for event: {key}")
+            return
+            
+        for rule in rules:
+            if rule.check_conditions(self, data):
+                # call the function
+                rule.func(self, data)
+            else:
+                # send a debug message
+                logger.debug(f"rule for {rule.func} did not meet conditions for event: {key}")
+        
+    
+    
+
+class Manager:
+    class PendingEvent:
+        def __init__(self, key: str, data: Any, stamped: datetime,
+                     context: Any = None, delay: Optional[float] = None):
+            self.key = key
+            self.data = data
+            self.stamped = stamped
+            self.context = context
+            self.delay = delay
+            
+    global_ruleset: Rules = Rules()
+    global_context: Context = Context(global_ruleset, "global")
+    rulesets: List[Rules] = [global_ruleset]
+    contexts: List[Context] = [global_context]
+    
+    pending_event_keys: List[PendingEvent] = []
+    
+    @staticmethod
+    def eventLoop():
+        """
+        the event keeps an eye on the events and calls the 'init' event when the engine starts.
+        """
+        # wait 100 ms before calling init
+        # so that the web server has time to start
+            
+        sleep(0.1)
+        logger.debug("calling init event")
+        fire_global("init", None)
+        while True:
+            # sort the pending events by timestamp + delay
+            Manager.pending_event_keys.sort(key=lambda x: x.stamped + timedelta(seconds=x.delay or 0))
+            
+            # loop over the pending events
+            # and fire those that are ready
+            for pending_event in Manager.pending_event_keys:
+                if pending_event.stamped + timedelta(seconds=pending_event.delay or 0) < datetime.now():
+                    # fire the event
+                    pending_event.context.fire_immediate(pending_event.key, pending_event.data)
+                    # remove the event from the list
+                    Manager.pending_event_keys.remove(pending_event)
+                else:
+                    break
+            # sleep for 1 ms
+            sleep(0.001)
+    
+    @staticmethod
+    def add_event(key: str, data: Any, context: Context, delay: Optional[float] = None):
+        """
+        adds an event to the event loop. The event will be fired after the given delay.
+        """
+        Manager.pending_event_keys.append(Manager.PendingEvent(key, data, datetime.now(), context, delay))
+    
+    
+    
+    
+    
+def event(key: str):
+    """
+    same as Rules.event, but attaches the event to the global rules object.
+    """
+    return Manager.global_ruleset.event(key)
+
+def condition(condition: Callable[[Any, Any], bool]):
+    """
+    same as Rules.condition, but attaches the event to the global rules object.
+    """
+    return Manager.global_ruleset.condition(condition)
+
+
+def fire_global(eventname: str, data: Any, delay: Optional[float] = None):
+    """
+    emits a global event with the given name in the global context.
+    When this function is called, every function annotated with @event(key) is called.
+    with the given context.
+    """
+    Manager.add_event(eventname, data, Manager.global_context, delay)
+    
+def fire_all(eventname: str, data: Any, delay: Optional[float] = None):
+    """
+    emits an event with the given name in every context.
+    When this function is called, every function annotated with @event(key) is called.
+    """
+    for context in Manager.contexts:
+        Manager.add_event(eventname, data, context, delay)
+    
+
+def create_context(ruleset: Optional[Rules] = None, name: Optional[str] = None) -> Context:
+    """
+    creates a new context and returns it.
+    """
+    context = Context(ruleset or Manager.global_ruleset, name)
+    Manager.contexts.append(context)
+    return context

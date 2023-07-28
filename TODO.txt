@@ -1,0 +1,21 @@
+[x] Refactor handlers in neca.py to eca/http.py
+[x] Add session manager to lazy-create new Contexts
+[x] Context switching through session manager
+[x] Add SSE handler to allow event-based pushes
+[x] Add pubsub for SSE handlers to allow emitting from within ECA context
+[x] Rework static file handling to not be the exception to normal operations
+[x] Add basic Javascript handling of events
+[x] Add a way to configure twitter (event generation) input thread
+[ ] Add control to event generation thread through HTTP interface
+[x] Document all core modules
+[ ] Add sample component of a graph/twitter list
+[ ] Harden system against programmer error (i.e. sanity check all rules-module data flow)
+[x] Add a delayed event scheduler (for 'fire in 2 seconds' things)
+[x] locatie tweets http://library.ewi.utwente.nl/ecadata/batatweets.txt
+[x] Clean up samples and rename leading sample to template.py + template dir
+[x] Button Block
+[ ] Session block
+[x] Full speed tweet time_factor
+[x] Docs in graph.js
+[x] emit() in non-server context should doe something useful
+[x] Rework rules set to non-global object
