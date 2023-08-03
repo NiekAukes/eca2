@@ -6,7 +6,7 @@ function your_block_name(id, config = {}) {
     */
 
     function onEvent(data) {
-        // handle data events given by the connect function
+        // handle data events given by the server part of your application
     }
 
     // return the onEvent function and the id

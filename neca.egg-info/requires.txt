@@ -1,0 +1,6 @@
+flask
+flask-socketio
+flask-sock
+PyInquirer
+rich
+typer

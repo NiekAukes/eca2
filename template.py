@@ -1,6 +1,6 @@
 from neca import *
-from eca.events import *
-from eca.logging import logger
+from neca.events import *
+from neca.log import logger
 import logging
 import random
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, Callable, Generator
-from eca.events import *
+from neca.events import *
 import json
 
 def tweet_generator(data_file: str):

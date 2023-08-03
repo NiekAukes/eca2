@@ -1,14 +1,15 @@
 from flask import Flask, render_template, url_for
 from flask_socketio import SocketIO as Sock
 
-import eca.events as events
-import threading
+
 import logging
-import json
+import neca.settings as settings
 
 
-app = Flask(__name__)
-socket = Sock(app, async_mode='threading')
+
+settings.init()
+from neca.settings import app, socket, eventThread
+
 
 # put logging level to error
 logging.getLogger('werkzeug').setLevel(logging.DEBUG)
@@ -19,19 +20,6 @@ def index():
     return render_template("index.html")
 
 
-def emit(event, data, id=None):
-    """
-    Emits a new event to the outside world (which is usually the browser).
-
-    name: the name of the emitted event
-    data: a piece of data that can be converted to JSON through json.dumps
-    id: optional identifier to be emitted. None indicates no identifier is emitted.
-
-    """
-    if id is not None:
-        data.update({"id": id})
-    socket.emit(event, data)
-
 @socket.on('connect')
 def connect():
     print("connected")
@@ -40,12 +28,10 @@ def connect():
 def disconnect():
     print("disconnected")
 
-eventThread = None
 
 def start(debug=True):
     # start the event loop on a separate thread
-    global eventThread
-    eventThread = threading.Thread(target=events.Manager.eventLoop)
+    #settings.init()
     eventThread.start()
     
     
@@ -55,3 +41,4 @@ def start(debug=True):
 
 if __name__ == '__main__':
     start()
+

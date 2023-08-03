@@ -1,8 +1,8 @@
 from time import sleep
 from typing import Callable, Any, Dict, List, Optional
-from eca.logging import logger
+from neca.log import logger
 from datetime import datetime, timedelta
-import functools
+import neca.settings as settings
 
 
 
@@ -273,3 +273,16 @@ def create_context(ruleset: Optional[Rules] = None, name: Optional[str] = None) 
     context = Context(ruleset or Manager.global_ruleset, name)
     Manager.contexts.append(context)
     return context
+
+def emit(event, data, id=None):
+    """
+    Emits a new event to the outside world (which is usually the browser).
+
+    name: the name of the emitted event
+    data: a piece of data that can be converted to JSON through json.dumps
+    id: optional identifier to be emitted. None indicates no identifier is emitted.
+
+    """
+    if id is not None:
+        data.update({"id": id})
+    settings.socket.emit(event, data)

@@ -1,0 +1,47 @@
+Metadata-Version: 2.1
+Name: neca
+Version: 2.0.1
+Summary: ECA: Event Condition Action 
+Home-page: https://github.com/NiekAukes/eca2
+Author: Niek Aukes
+Author-email: niek.aukes@gmail.com
+Project-URL: Bug Reports, https://github.com/NiekAukes/eca2/issues
+Project-URL: Source, https://github.com/NiekAukes/eca2
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Python: >=3.7, <4
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+ECA - Event Condition Action
+=================================
+
+ECA was developed as an educational tool aimed at a diverse CS student 
+population with programming experience ranging from "very little" to "very 
+much": it allows students to quickly develop a prototype real-time Twitter 
+Dashboard that really looks cool. And it is open to more advanced programming 
+to challenge students who have more experience.
+The basis of ECA is a rule system that reacts to externally generated events.
+
+The architecture favours simplicity over robustness. Multithreading is used in
+favour of more suitable parallelism options such as greenlets to keep
+dependencies to a minimum for ease of deployment.
+
+Documentation can be found in the Wiki of this github site.
+
+This program is not intended for production use. It may contain security issues
+not tolerable outside of a controlled environment.
+
+ECA requires Python 3.2 or higher.
+
+
+
+

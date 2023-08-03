@@ -1,9 +1,18 @@
 from setuptools import setup, find_packages
 import pathlib
 
+requirements = [
+    "flask",
+    "flask-socketio", # ?
+    "flask-sock",
+    "PyInquirer",
+    "rich",
+    "typer",
+]
+
 setup(
-    name='eca',
-    version='2.0.1',
+    name='neca',
+    version='2.0.10',
     description='ECA: Event Condition Action ',
     long_description=pathlib.Path('README.md').read_text(),
     long_description_content_type='text/markdown',
@@ -32,20 +41,23 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
     ],
     
-    packages=find_packages(where="eca"),  # Required
+    packages=find_packages(),	
     python_requires=">=3.7, <4",
-    package_dir={"": "eca"},
     # read from requirements.txt
-    install_requires=pathlib.Path('requirements.txt').read_text().splitlines(),
+    install_requires=requirements,
+    include_package_data=True,
+    package_data={
+        "neca": ["templates/*"],
+    },
     
     entry_points={
         "console_scripts": [
-            "eca=eca.__main__:main",
+            "neca=neca.__main__:cli",
         ]
     },
 
     project_urls={  # Optional
-        "Bug Reports": "",
-        "Source": ""
+        "Bug Reports": "https://github.com/NiekAukes/eca2/issues",
+        "Source": "https://github.com/NiekAukes/eca2"
     }
 )

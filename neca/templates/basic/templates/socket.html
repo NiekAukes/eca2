@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Neca Test</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+</head>
+<body class="container_12">
+<h1>ECA Dashboard Template</h1>
+<ul id="messages"></ul>
+
+<!-- send a message to /send, but stay on the current site -->
+<form action="/send" method="post" onsubmit="return false;">
+    <label for="m">Message</label>
+    <input id="m" autocomplete="off" />
+    <button onclick="send()">Send</button>
+</form>
+
+
+
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+    //listen to the event
+    socket.on('message', function(msg) {
+        // add a new element to messages
+        var li = document.createElement('li');
+        li.innerHTML = msg.message;
+        document.getElementById("messages").appendChild(li);
+    });
+
+    socket.on('tweet', function(msg) {
+        console.log(msg);
+    })
+
+    // keep the socket open
+    setInterval(function() {
+        socket.emit('my event', {data: 'I\'m still connected!'});
+    }, 1000);
+
+    window.post = function(url, data) {
+  return fetch(url, {method: "POST", body: JSON.stringify(data)});
+}
+    function send() {
+        var message = document.getElementById("m").value;
+        post("/send", {message: message});
+    }
+</script>
+</body>
+</html>

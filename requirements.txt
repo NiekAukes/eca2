@@ -1,4 +1,3 @@
 flask
 flask-socketio # ?
-gevent-websocket # ?
 flask-sock
