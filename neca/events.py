@@ -181,9 +181,22 @@ class Context:
     
 
 class Manager:
+    """
+    the manager keeps track of the rules and contexts.
+    """
     class PendingEvent:
+        """
+        Data class for pending events.
+        """
         def __init__(self, key: str, data: Any, stamped: datetime,
                      context: Any = None, delay: Optional[float] = None):
+            """
+            key: the name of the event
+            data: the data to pass to the event handlers
+            stamped: the timestamp of when the event was created
+            context: the context for which the event was created
+            delay: the delay in seconds before the event is fired
+            """
             self.key = key
             self.data = data
             self.stamped = stamped

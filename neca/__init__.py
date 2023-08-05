@@ -1,3 +1,8 @@
+""" ECA server module
+This is the main module for the ECA server. It contains the start function
+and provides access to the flask app object
+"""
+
 from flask import Flask, render_template, url_for
 from flask_socketio import SocketIO as Sock
 
