@@ -2,7 +2,7 @@ from events import *
 ## NOT YET USED AND UNFINISHED
 
 class SessionContext(Context):
-    def __init__(self, session: "Session", ruleset: Rules, name: Optional[str] = None):
+    def __init__(self, session: "Session", ruleset: Ruleset, name: Optional[str] = None):
         super().__init__(ruleset, name)
         self.session = session
         
@@ -28,7 +28,7 @@ class SessionContext(Context):
 class Session:
     def __init__(self, socket, name: Optional[str] = None):
         self.socket = socket
-        self.context = SessionContext(self, Rules(), name)
+        self.context = SessionContext(self, Ruleset(), name)
         
     def emit(self, eventname: str, data: Any):
         self.socket.emit(eventname, data)

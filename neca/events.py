@@ -6,9 +6,9 @@ import neca.settings as settings
 
 
 
-class Rules:
+class Ruleset:
     """
-    a Rules object is a collection of rules that can be used to handle events.
+    a Ruleset object is a collection of rules that can be used to handle events.
     rules are functions that take a context and an event as arguments.
     they are called when an event is fired.
     """
@@ -43,24 +43,25 @@ class Rules:
             
     
     def __init__(self):
-        self.functions: Dict[Callable[["Context", Any], None], Rules.Rule] = {}
+        self.functions: Dict[Callable[["Context", Any], None], Ruleset.Rule] = {}
         
         # a dictionary of rules, indexed by event name
         # "eventname": [rule1, rule2, ...]
         # "eventname2": [rule3, rule4, ...]
-        self.index: Dict[str, List[Rules.Rule]] = {}
+        self.index: Dict[str, List[Ruleset.Rule]] = {}
         
         
     
     def event(self, key: str):
         """
         decorator for event handlers, 
-        the decorated function will be called when emit(key, context) is called.
+        the decorated function will be called when emit(key, context) is called 
+        on the key given to this decorator.
         """
         
         def decorator(func: Callable[["Context", Any], None]):
             # get or create the rule
-            rule = self.functions.get(func, Rules.Rule(func, []))
+            rule = self.functions.get(func, Ruleset.Rule(func, []))
             rule.keys.append(key)
             
             
@@ -103,7 +104,7 @@ class Rules:
             # check if function is registered
             if func not in self.functions:
                 # add the function to the rules with an empty keyset
-                self.functions[func] = Rules.Rule(func, [])
+                self.functions[func] = Ruleset.Rule(func, [])
             
             # add the condition to the rule
             self.functions[func].add_condition(condition)
@@ -112,7 +113,7 @@ class Rules:
         return decorator
 
 class Context:
-    def __init__(self, ruleset: Rules, name: Optional[str] = None):
+    def __init__(self, ruleset: Ruleset, name: Optional[str] = None):
         self._data: Dict[Any, Any] = {}
         self.ruleset = ruleset
         
@@ -203,9 +204,9 @@ class Manager:
             self.context = context
             self.delay = delay
             
-    global_ruleset: Rules = Rules()
+    global_ruleset: Ruleset = Ruleset()
     global_context: Context = Context(global_ruleset, "global")
-    rulesets: List[Rules] = [global_ruleset]
+    rulesets: List[Ruleset] = [global_ruleset]
     contexts: List[Context] = [global_context]
     
     pending_event_keys: List[PendingEvent] = []
@@ -257,7 +258,7 @@ def event(key: str):
 
 def condition(condition: Callable[[Any, Any], bool]):
     """
-    same as Rules.condition, but attaches the event to the global rules object.
+    same as Rules.condition, but attaches the condition to the global rules object.
     """
     return Manager.global_ruleset.condition(condition)
 
@@ -267,6 +268,10 @@ def fire_global(eventname: str, data: Any, delay: Optional[float] = None):
     emits a global event with the given name in the global context.
     When this function is called, every function annotated with @event(key) is called.
     with the given context.
+    
+    key: the name of the event
+    data: the data to pass to the event handlers
+    delay: the delay in seconds before the event is fired
     """
     Manager.add_event(eventname, data, Manager.global_context, delay)
     
@@ -279,9 +284,11 @@ def fire_all(eventname: str, data: Any, delay: Optional[float] = None):
         Manager.add_event(eventname, data, context, delay)
     
 
-def create_context(ruleset: Optional[Rules] = None, name: Optional[str] = None) -> Context:
+def create_context(ruleset: Optional[Ruleset] = None, name: Optional[str] = None) -> Context:
     """
     creates a new context and returns it.
+    ruleset: the ruleset to use for this context. If None, the global ruleset is used.
+    name: the name of the context. If None, the name becomes the object id of the context.
     """
     context = Context(ruleset or Manager.global_ruleset, name)
     Manager.contexts.append(context)
