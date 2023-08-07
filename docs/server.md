@@ -1,5 +1,4 @@
 # Extending your web server with Flask
-## Flask
 the neca web server is based on flask, a python web framework. this means that you can use flask to extend your web server with new features, such as new endpoints or pages (if that's desired).
 
 new endpoints can be used to transfer data from your brows
