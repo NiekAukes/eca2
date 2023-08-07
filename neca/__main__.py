@@ -14,10 +14,23 @@ cli = typer.Typer()
 
 sep = "\\" if os.name == "nt" else "/"
 path = pathlib.Path(__file__).parent.absolute()
-templates = [path.name for path in (path / "templates").iterdir() if path.is_dir()]
+
+
+templates = {path.absolute(): path.name for path in (path / "templates").iterdir() if path.is_dir()}
+
+# add tutorials to the list of templates
+tutorial_names = {
+    "T1": "Tutorial 1: The Event System",
+    "T2": "Tutorial 2: Creating your first Block",
+}
+tutorials = {path.absolute(): tutorial_names[path.name] for path in (path / "tutorials").iterdir() if path.is_dir()}
+templates.update(tutorials)
+
+
+
 
 @cli.command()
-def create(project_name: str = "", template: str = ""):
+def create(project_name: str = ""):
     """
     creates a new project using the eca package
     """
@@ -41,33 +54,26 @@ def create(project_name: str = "", template: str = ""):
     if project_path.exists() and any(project_path.iterdir()):
         rprint(f"[red]project '{project_name}' already exists or already contains files[/red]")
         return
-
-    # check if the template exists
-    if template != "" and template not in templates:
-        # use rich print
-        rprint(f"[red]template '{template}' does not exist[/red]")
-        template = ""
     
     # if the template is not specified, ask the user what template to use
     # use the PyInquirer package
-    if template == "":
-        questions = [
-            {
-                'type': 'list',
+    questions = [
+        {
+            'type': 'list',
 
-                'name': 'template',
-                'message': 'what template do you want to use?',
-                'choices': templates
-            }
-        ]
-        
-        answers = prompt(questions)
-        template = answers['template']
+            'name': 'template',
+            'message': 'what template do you want to use?',
+            'choices': list(templates.values())
+        }
+    ]
+    
+    answers = prompt(questions)
+    template = answers['template']
+    # convert the tutorial name to the path
+    template = list(templates.keys())[list(templates.values()).index(template)]
 
-    # copy the template to the project folder
-    template_path = path / "templates" / template
 
-    shutil.copytree(template_path, project_path)
+    shutil.copytree(template, project_path)
 
     rprint(f"[green]project '{project_name}' created[/green]")
 

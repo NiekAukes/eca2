@@ -121,13 +121,17 @@ create a perpetual loop that emits a sine wave. you can use the `math.sin()` fun
 <details>
 <summary>Hint 1</summary>
 
-you can repeatedly fire the same event every 0.1 by using `fire_global("sinewave", xxx, delay=0.1)`. this will fire the event `sinewave` every 0.1 seconds. you can use this to create a perpetual loop.
+you can repeatedly fire the same event every 0.1 by using 
+```python
+fire_global("sinewave", ?, delay=0.1)
+```
+this will fire the event `sinewave` every 0.1 seconds. you can use this to create a perpetual loop.
 </details>
 
 <details>
 <summary>Hint 2</summary>
 
-use the data parameter to define your x value.
+use the data parameter to define your x value for the sine wave. you can use the `math.sin()` function to calculate the y value.
 
 ```python
 @event("sinewave")
