@@ -3,6 +3,7 @@ from typing import Callable, Any, Dict, List, Optional
 from neca.log import logger
 from datetime import datetime, timedelta
 import neca.settings as settings
+from threading import Lock
 
 
 
@@ -208,6 +209,10 @@ class Manager:
     global_context: Context = Context(global_ruleset, "global")
     rulesets: List[Ruleset] = [global_ruleset]
     contexts: List[Context] = [global_context]
+
+    # lock for the pending events, add_event may be 
+    # called from multiple threads
+    _lock = Lock()
     
     pending_event_keys: List[PendingEvent] = []
     
@@ -244,8 +249,9 @@ class Manager:
         """
         adds an event to the event loop. The event will be fired after the given delay.
         """
+        Manager._lock.acquire()
         Manager.pending_event_keys.append(Manager.PendingEvent(key, data, datetime.now(), context, delay))
-    
+        Manager._lock.release()
     
     
     
