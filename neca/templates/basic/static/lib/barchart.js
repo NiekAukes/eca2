@@ -52,9 +52,6 @@ function bar_chart(id, config = {}) {
         chart.update();
     }
 
-    // return the onEvent function and the id of the binding element
-    return {
-        onEvent: onEvent,
-        id: id
-    }
+    // return the onEvent function
+    return onEvent;
 }

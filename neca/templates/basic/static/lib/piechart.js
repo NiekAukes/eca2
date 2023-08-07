@@ -53,8 +53,5 @@ function pie_chart(id, config = {}) {
     }
 
     // return the onEvent function and the id of the binding element
-    return {
-        onEvent: onEvent,
-        id: id
-    }
+    return onEvent;
 }

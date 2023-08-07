@@ -14,8 +14,5 @@ function logg(id, config = {}) {
     }
 
     // return the onEvent function and the id
-    return {
-        onEvent: onEvent,
-        id: id
-    }
+    return onEvent;
 }
