@@ -5,3 +5,4 @@ data/*
 *~
 dist/*
 build.bat
+*.egg-info/
