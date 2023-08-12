@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Neca Test</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="static/lib/core.js"></script>
+<script src="static/lib/chart.js"></script>
+<script src="static/lib/linearchart.js"></script>
+</head>
+<body>
+    <div style="width: 400px; height: 400px; overflow: hidden;">
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script>
+        var chart = linearchart('chart', {
+            data: {
+                datasets: [{
+                    label: 'series1',
+                    data: [],
+                    memory: 100
+                }, {
+                    label: 'series2',
+                    data: [[0, 0], [1, 1], [2, 2], [3, 3]],
+                    memory: 100
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        connect_block(chart, 'chart');
+    </script>
+</body>
+</html>
