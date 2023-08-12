@@ -56,7 +56,7 @@ class Ruleset:
     def event(self, key: str):
         """
         decorator for event handlers, 
-        the decorated function will be called when emit(key, context) is called 
+        the decorated function will be called when context.fire(key, context) is called 
         on the key given to this decorator.
         """
         
@@ -258,12 +258,18 @@ class Manager:
     
 def event(key: str):
     """
+    decorator for event handlers, 
+    the decorated function will be called when fire_global(key, context) is called 
+    on the key given to this decorator.
+
     same as Rules.event, but attaches the event to the global rules object.
     """
     return Manager.global_ruleset.event(key)
 
 def condition(condition: Callable[[Any, Any], bool]):
     """
+    sets a condition for an event handler. 
+
     same as Rules.condition, but attaches the condition to the global rules object.
     """
     return Manager.global_ruleset.condition(condition)
