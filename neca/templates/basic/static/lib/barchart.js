@@ -1,4 +1,4 @@
-function bar_chart(id, config = {}) {
+function barchart(id, config = {}) {
     const ctx = document.getElementById(id);
     const chart = new Chart(ctx, {
         type: 'bar',
