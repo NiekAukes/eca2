@@ -2,8 +2,10 @@ import os
 import pathlib
 import shutil
 import typer
-from PyInquirer import prompt
 from rich import print as rprint
+from InquirerPy.prompts.list import ListPrompt
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.filepath import FilePathPrompt
 
 
 # ============================================================================================================================
@@ -36,18 +38,12 @@ def create(project_name: str = ""):
     """
 
     # if the project name is not specified, ask the user what project name to use
-    if project_name == "":
-        questions = [
-            {
-                'type': 'input',
-                'name': 'project_name',
-                'message': 'what is the name of the project?',
-                'default': 'my_project'
-            }
-        ]
+    if project_name == "":	
+        prompt = InputPrompt(
+            message="what is the name of the project?", 
+            default="my_project")
         
-        answers = prompt(questions)
-        project_name = answers['project_name']
+        project_name = prompt.execute()
     
     # check if the project name folder either does not exist or is empty
     project_path = pathlib.Path(project_name)
@@ -55,20 +51,12 @@ def create(project_name: str = ""):
         rprint(f"[red]project '{project_name}' already exists or already contains files[/red]")
         return
     
-    # if the template is not specified, ask the user what template to use
-    # use the PyInquirer package
-    questions = [
-        {
-            'type': 'list',
-
-            'name': 'template',
-            'message': 'what template do you want to use?',
-            'choices': list(templates.values())
-        }
-    ]
     
-    answers = prompt(questions)
-    template = answers['template']
+    prompt = ListPrompt(message="what template do you want to use?",
+                        choices=list(templates.values()),
+                        pointer=">"
+                        )
+    template = prompt.execute()
     # convert the tutorial name to the path
     template = list(templates.keys())[list(templates.values()).index(template)]
 
@@ -97,17 +85,11 @@ def demo(path: str = ""):
 
     # ask the user what demo name to use
     names = [demo_names[demo] for demo in demos.keys()]
-    questions = [
-        {
-            'type': 'list',
-            'name': 'demo name',
-            'message': 'what demo do you want to run?',
-            'choices': names
-        }
-    ]
-    
-    answers = prompt(questions)
-    demo_name = answers['demo name']
+    prompt = ListPrompt(message="what demo do you want to run?",
+                        choices=names,
+                        pointer=">"
+                        )
+    demo_name = prompt.execute()
 
     # convert the demo name to the path
     real_demo = list(demo_names.keys())[list(demo_names.values()).index(demo_name)]
@@ -126,14 +108,19 @@ def demo(path: str = ""):
             }
         ]
         
-        answers = prompt(questions)
-        path = answers['path']
+        prompt = FilePathPrompt(
+            message="which path do you want to use?",
+            default="my_demo"
+        )
+
+        path = prompt.execute()
+        
     
 
     # copy the demo to the current directory
     shutil.copytree(demo_path, path)
 
-    rprint(f"[green]demo '{demo_name}' ran[/green]")
+    rprint(f"[green]demo '{demo_name}' created[/green]")
     
 
 
@@ -159,8 +146,16 @@ def no_command(ctx: typer.Context):
         }
     ]
 
-    answers = prompt(questions)
-    command = answers['command']
+    prompt = ListPrompt(
+        message="what do you want to do?",
+        choices=[
+            "create a new project",
+            #"make a tutorial",
+            "show a demo"
+        ],
+        pointer=">"
+    )
+    command = prompt.execute()
 
     if command == "create a new project":
         ctx.invoke(create)

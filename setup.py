@@ -5,7 +5,7 @@ requirements = [
     "flask",
     "flask-socketio", # ?
     "flask-sock",
-    "PyInquirer",
+    "InquirerPy",
     "rich",
     "typer",
 ]
