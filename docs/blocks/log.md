@@ -2,6 +2,14 @@
 ## Description
 This block is used to log messages to a log display. It is useful for debugging purposes.
 
+## Requirements
+This block requires the following libraries:
+- log.js
+
+```html
+<script src="/static/lib/log.js"></script>
+```
+
 ## Preview
 ![preview](../img/log.png)
 

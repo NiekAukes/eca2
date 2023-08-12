@@ -3,12 +3,13 @@ in this section we will discuss about blocks and how to use them in your project
 
 ## Types of blocks
 currently, there are 6 types of blocks:
-- `log`, displays a logger
-- `form`, displays a form for the user to fill
-- `line_chart`, displays an x-y line chart
-- `bar_chart`, displays a bar chart
-- `pie_chart`, displays a pie chart
-- `rolling_chart`, displays a rolling chart
+- [log](log.md), displays a logger
+- [form](form.md), displays a form for the user to fill
+- [linearchart](linear_chart.md), displays a linear x-y line chart
+- [linechart](line_chart.md), displays a categorical line chart
+- [barchart](bar_chart.md), displays a bar chart
+- [piechart](pie_chart.md), displays a pie chart
+
 
 each block has its own properties and methods. see their respective sections for more information.
 
