@@ -1,4 +1,4 @@
-function logg(id, config = {}) {
+function log_block(id, config = {}) {
     const element = document.getElementById(id);
 
     function onEvent(data) {
