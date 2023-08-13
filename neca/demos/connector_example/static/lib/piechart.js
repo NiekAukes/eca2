@@ -52,6 +52,6 @@ function piechart(id, config = {}) {
         chart.update();
     }
 
-    // return the onEvent function and the id of the binding element
+    // return the onEvent function
     return onEvent;
 }

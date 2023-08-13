@@ -21,4 +21,4 @@ def init():
 
     app = Flask("__main__")
     socket = Sock(app, async_mode='threading')
-    eventThread = threading.Thread(target=events.Manager.eventLoop)
+    eventThread = threading.Thread(target=events.Manager.eventLoop, daemon=True)
