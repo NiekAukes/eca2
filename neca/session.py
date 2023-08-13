@@ -16,13 +16,13 @@ class SessionContext(Context):
         self._data[key] = value
         
         # update the client on the context change  
-        self.emit("update", {key: value})
+        self.emit("\1", {key: value})
     
     def __delitem__(self, key):
         del self._data[key]
         
         # update the client on the context change
-        self.emit("delete", key)
+        self.emit("\2", key)
     
 
 class Session:
