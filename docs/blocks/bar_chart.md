@@ -103,7 +103,7 @@ This example is also available as a demo
 </script>
 ```
 
-```
+```python
 emit("barchart", {
     "action": "set",
     "value": ["Red", 10]
@@ -111,7 +111,7 @@ emit("barchart", {
 
 emit("barchart", {
     "action": "add",
-    "value": ["Blue", 20]
+    "value": ["Yellow", 20]
 })
 ```
 
