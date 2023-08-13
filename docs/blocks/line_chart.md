@@ -1,4 +1,4 @@
-# Bar chart block
+# Line chart block
 ## Description
 This block is used to display data in a line chart. useful for categorical data.
 ## Requirements

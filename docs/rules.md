@@ -1,4 +1,4 @@
-# Rules and Contexts
+# Rules and Contexts (Deprecated)
 Rules and Contexts form the backbone of neca. they are used to handle events and store data. A rule is a function that is invoked when an event is fired in a context. A context is a place where events can be fired and data can be stored. Every program has a global context, using the global ruleset. A context can have its own ruleset, which can be used to override the global ruleset.
 
 ## Rules

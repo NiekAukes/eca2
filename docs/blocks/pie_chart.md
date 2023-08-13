@@ -1,4 +1,4 @@
-# Bar chart block
+# Pie chart block
 ## Description
 This block is used to display data in a pie chart. useful for proportional data.
 ## Requirements

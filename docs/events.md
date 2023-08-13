@@ -1,4 +1,4 @@
-# Events
+# Events (Deprecated)
 ## Firing events
 Events can be fired in a context by using the `fire` method.
 ```python

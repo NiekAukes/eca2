@@ -58,7 +58,7 @@ def my_event_handler(context, data):
 ```
 
 ## Event context
-The event handler receives a context object as its first argument. This object stores the general context information and is persistent across events fired within this context. Normally there is only one context, but you can create multiple contexts if you want to. This can be useful if you want to have multiple event handlers for the same event, but with different context information.
+The event handler receives a context object as its first argument. This object stores the general context information and is persistent across events fired within this context. Normally there is only one context, but you can create multiple contexts if you want to. This can be useful if you want to handle events differently in different contexts.
 
 ```python
 from neca.events import event, fire_global
