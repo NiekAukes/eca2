@@ -36,8 +36,7 @@ you can load a tutorial by creating a new project with a tutorial template. Insi
 You can find the documentation [here](https://github.com/NiekAukes/eca2/wiki).
 
 ## Demos
-You can instantiate a demo with the neca commandline tool:
+You can instantiate a demo with the neca commandline tool and choosing an example from the list
 ```bash
-neca demo [demo name]
+neca [your folder here]
 ```
-leave the demo name empty to see a list of available demos.
