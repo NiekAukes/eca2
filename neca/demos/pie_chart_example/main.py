@@ -7,12 +7,12 @@ def init(context, data):
 
 @event("init5")
 def init5(context, data):
-    emit("barchart", {
+    emit("piechart", {
         "action": "set",
         "value": ["Red", 10]
     })
 
-    emit("barchart", {
+    emit("piechart", {
         "action": "add",
         "value": ["Yellow", 20]
     })

@@ -6,16 +6,16 @@
 <script src="/static/lib/socket.io.js"></script>
 <script src="/static/lib/core.js"></script>
 <script src="/static/lib/chart.js"></script>
-<script src="/static/lib/barchart.js"></script>
+<script src="/static/lib/piechart.js"></script>
 
 </head>
 <body>
-    <div style="height: 400px; overflow: hidden;">
+    <div style="height: 400px; overflow: hidden">
         <canvas id="myChart"></canvas>
     </div>
-
+    
     <script>
-        let chart = barchart('myChart', {
+        let chart = piechart('myChart', {
             data: {
                 labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
                 datasets: [{
@@ -41,16 +41,11 @@
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
                 responsive: true,
             }
         });
         
-    connect_block(chart, 'barchart')
+        connect_block(chart, 'piechart')
     </script>
 </body>
 </html>

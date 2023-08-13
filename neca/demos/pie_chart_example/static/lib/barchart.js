@@ -1,7 +1,7 @@
-function piechart(id, config = {}) {
+function barchart(id, config = {}) {
     const ctx = document.getElementById(id);
     const chart = new Chart(ctx, {
-        type: 'pie',
+        type: 'bar',
         data: config.data || {
             labels: [],
             datasets: [{
@@ -52,6 +52,6 @@ function piechart(id, config = {}) {
         chart.update();
     }
 
-    // return the onEvent function and the id of the binding element
+    // return the onEvent function
     return onEvent;
 }
