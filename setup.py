@@ -12,7 +12,7 @@ requirements = [
 
 setup(
     name='neca',
-    version='2.0.12',
+    version='2.1.0',
     description='ECA: Event Condition Action ',
     long_description=pathlib.Path('README.md').read_text(),
     long_description_content_type='text/markdown',
