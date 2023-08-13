@@ -296,7 +296,7 @@ def fire_all(eventname: str, data: Any, delay: Optional[float] = None):
         Manager.add_event(eventname, data, context, delay)
     
 
-def create_context(ruleset: Optional[Ruleset] = None, name: Optional[str] = None) -> Context:
+def create_context(name: Optional[str] = None, ruleset: Optional[Ruleset] = None) -> Context:
     """
     creates a new context and returns it.
     ruleset: the ruleset to use for this context. If None, the global ruleset is used.

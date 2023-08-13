@@ -16,7 +16,11 @@ def connect_datastream(host: str, port: int, fire: Callable):
     
 def _connect(host: str, port: int, fire: Callable):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
+    try:
+        sock.connect((host, port))
+    except Exception as e:
+        print(str(e))
+        return
     data = b''
     try:
         while True:

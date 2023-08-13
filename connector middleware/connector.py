@@ -125,7 +125,7 @@ def event(key):
 
     tosend = {
         "key": key,
-        "data": request.json
+        "data": request.json if request.is_json else request.data.decode("utf-8")
     }
 
     # jsonize the data
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     s.bind((socket.gethostname(), 25565))
 
     # print the port number
-    print(f"Listening on port {s.getsockname()}")
+    print(f"Listening on {s.getsockname()}\n")
 
     s.listen()
     
