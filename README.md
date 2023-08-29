@@ -19,7 +19,7 @@ pip install neca
 ## Creating a new project
 use the neca commandline tool to create a new project:
 ```bash
-neca create [project name]
+neca [folder name]
 ```
 
 ## Running your newly created project
@@ -38,5 +38,5 @@ You can find the documentation [here](https://github.com/NiekAukes/eca2/wiki).
 ## Demos
 You can instantiate a demo with the neca commandline tool and choosing an example from the list
 ```bash
-neca [your folder here]
+neca [folder name]
 ```
