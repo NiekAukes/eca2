@@ -32,6 +32,10 @@ python main.py
 If you want to learn about the neca framework in an interactive way, you can check out the tutorials. 
 you can load a tutorial by creating a new project with a tutorial template. Inside these templates there's a README.md file that explains the tutorial content and has some small exercises to help you learn. To open this file in visual studio code, right click on the file and select "Open Preview".
 
+You can also view the tutorials in the Wiki:
+- [Tutorial 1 - the Event System](wiki/Tutorial-1)
+- [Tutorial 2 - creating your first block](wiki/Tutorial-2)
+
 ## Documentation
 You can find the documentation [here](https://github.com/NiekAukes/eca2/wiki).
 
