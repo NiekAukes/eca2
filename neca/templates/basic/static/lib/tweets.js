@@ -4,17 +4,21 @@ function tweets(id, config = {
 
     // initialize the block
     var element = document.getElementById(id);
+    element.className += " tweets";
     
-    function buildUser(tweet) {
-        // create the wrapper
-        var wrap = document.createElement("div");
-        wrap.className = "tweet-user";
-
+    function buildProfilePicture(tweet) {
         // add the image
         var img = document.createElement("img");
         img.className = "tweet-user-img";
         img.src = "/static/res/DefaultTwitterUser.png"
-        wrap.appendChild(img);
+        img.alt = "Profile Picture";
+        return img;
+    }
+
+    function buildUser(tweet) {
+        // create the wrapper
+        var wrap = document.createElement("div");
+        wrap.className = "tweet-user";
 
         // add the name
         var name = document.createElement("p");
@@ -79,13 +83,24 @@ function tweets(id, config = {
         var tweetElement = document.createElement("div");
         tweetElement.className = "tweet-wrapper";
 
+        // build the profile picture
+        var profilePicture = buildProfilePicture(tweet);
+        tweetElement.appendChild(profilePicture);
+
+        // make another div for the user and text
+        var userText = document.createElement("div");
+        userText.className = "tweet-user-text";
+
         // build the user
         var user = buildUser(tweet);
-        tweetElement.appendChild(user);
+        userText.appendChild(user);
 
         // build the text
         var text = buildText(tweet);
-        tweetElement.appendChild(text);
+        userText.appendChild(text);
+
+        // add the user and text to the tweet
+        tweetElement.appendChild(userText);
 
         return tweetElement;
     }
@@ -103,6 +118,6 @@ function tweets(id, config = {
         }
     }
 
-    // return the onEvent function and the id
+    // return the onEvent function
     return onEvent;
 }

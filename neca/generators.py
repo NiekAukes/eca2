@@ -3,12 +3,24 @@ from typing import Optional, Callable, Generator
 from neca.events import *
 import json
 
-def tweet_generator(data_file: str):
+def tweet_generator(data_file: str) -> Generator[dict, None, None]:
     """
-    simple generator that reads tweets from a file and yields them
-    :param data_file: the file containing the tweets
+    Generate tweet objects from a data file and yield them.
+
+    This generator function reads tweet data from a specified file, parses each line as a JSON-encoded tweet object,
+    and yields the parsed tweet objects one by one.
+
+    Parameters:
+    - data_file (str): The path to the file containing the tweet data.
+
+    Yields:
+    - dict: A parsed tweet object as a Python dictionary.
+    ```
     
+    Note:
+    - The input file should contain one JSON-encoded tweet object per line.
     """
+
     for line in open(data_file, 'r'):
         tweet = json.loads(line)
         yield tweet
@@ -18,15 +30,32 @@ def generate_offline_tweets(data_file: str,
                           event_name: str = 'tweet', 
                           context: Optional[Context] = None, 
                           limit: Optional[int] = None,
-                          generator: Callable[[str], Generator] = tweet_generator):
+                          generator: Callable[[str], Generator] = tweet_generator) -> None:
     """
-    Starts a generator that reads tweets from a file and emits them as events.
-    :param event_name: the name of the event to emit
-    :param data_file: the file containing the tweets
-    :param time_scale: the time scale used to convert the timestamps in the file to simulation time
-    :param context: the context to emit the events to
-    :param limit: the maximum number of tweets to emit
-    :param generator: the generator to use to read the tweets
+    Generate and emit tweet objects from a data file as events.
+
+    This function reads tweet data from a specified file and emits them as events with optional rate-limiting
+    and custom event naming. The tweets are converted into event objects and delivered to the provided context.
+
+    Parameters:
+    - data_file (str): The path to the file containing the tweet data.
+    - time_scale (int, optional): The time scale used to convert timestamps in the file to simulation time.
+      Default is 1000, which means that 1 second in the file corresponds to 1 millisecond in the simulation (1000x speedup)
+    - event_name (str, optional): The name of the event to which the tweets should be emitted. Default is 'tweet'.
+    - context (Context, optional): The context in which to emit the events. If None, events are not emitted.
+    - limit (int, optional): The maximum number of tweets to emit. If None, all tweets from the file are emitted.
+    - generator (Callable[[str], Generator], optional): The generator function used to read and parse tweets from the file.
+      Default is 'tweet_generator'.
+
+    Note:
+    - The 'tweet_generator' function should be a Callable that takes a line of text from the data file as input
+      and yields tweet objects.
+
+    Example usage:
+    ```python
+    # Generate and emit tweets from a data file
+    generate_offline_tweets('tweets.txt', time_scale=1000, event_name='new_tweet', limit=100)
+    ```
     """
     
     begin_time = None
@@ -79,7 +108,32 @@ def print_tweet(tweet):
 
 def print_object(object, tab_level=0):
     """
-    prints objects in a more readable format
+    Print a Python object in a structured and human-readable format.
+
+    This function converts the input object into a dictionary and prints its keys and values in a well-formatted way.
+    If a value is itself a dictionary or a list, it will be printed recursively to maintain a structured display.
+
+    Parameters:
+    - object: The Python object to be printed.
+    - tab_level (int, optional): The initial tabulation level for indentation. Default is 0.
+
+    Example usage:
+    ```python
+    my_dict = {'name': 'John', 'age': 30, 'address': {'city': 'New York', 'zip': '10001'}}
+    print_object(my_dict)
+    ```
+
+    Output:
+    ```
+    name: John
+    age: 30
+    address:
+        city: New York
+        zip: 10001
+    ```
+
+    Note:
+    - This function is useful for debugging and displaying the contents of complex objects in a more readable manner.
     """
     # it does this by converting the object to a dict
     # and then printing all keys and values

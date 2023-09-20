@@ -1,3 +1,39 @@
+"""
+The "events" module provides a flexible event handling system for managing and handling events within your application.
+
+Events are a fundamental part of many software systems, allowing different parts of your code to communicate and respond to specific occurrences or triggers. This module offers a set of tools to manage events, define event handlers, and emit events within your application.
+
+Most used functions and decorators:
+- @event(key): A decorator for event handlers. Functions decorated with @event(key) will be called when "fire_global(key, context)" is invoked with the specified key. It attaches the event to the global rules object.
+
+- @condition(condition): Sets a condition for an event handler. It attaches the condition to the global rules object.
+
+- fire_global(eventname, data, delay=None): Emits a global event with the given name in the global context. All functions annotated with @event(key) are called with the provided context.
+
+- fire_all(eventname, data, delay=None): Emits an event with the given name in every context. All functions annotated with @event(key) are called for each context.
+
+- create_context(name=None, ruleset=None): Creates a new context and returns it. You can specify the ruleset to use for this context, and optionally, provide a name. If no ruleset is specified, the global ruleset is used.
+
+- emit(event, data, id=None): Emits a new event to the outside world, typically to a web browser. You can specify the event name, data (convertible to JSON through json.dumps), and an optional identifier.
+
+Example Usage:
+```python
+from events import Ruleset, event, fire_global, create_context, emit
+
+# Define event handlers
+@event("user_login")
+def handle_login(context, event_data):
+    # Handle user login event
+    pass
+
+# Emit a global event
+fire_global("user_login", {"user_id": 123})
+
+# Emit an event to the outside world (browser)
+emit("browser_event", {"message": "Hello, world!"})
+```
+"""
+
 from time import sleep
 from typing import Callable, Any, Dict, List, Optional
 from neca.log import logger
@@ -61,6 +97,13 @@ class Ruleset:
         """
         
         def decorator(func: Callable[["Context", Any], None]):
+            # check if the function does have a context and data argument
+            if not callable(func):
+                raise ValueError("function is not callable")
+            if func.__code__.co_argcount < 2 or func.__code__.co_argcount - len(func.__defaults__ or []) >= 2:
+                raise ValueError(f"event handler '{func.__name__}' has {func.__code__.co_argcount - len(func.__defaults__ or [])} required argument(s), but should have 2")
+
+
             # get or create the rule
             rule = self.functions.get(func, Ruleset.Rule(func, []))
             rule.keys.append(key)
