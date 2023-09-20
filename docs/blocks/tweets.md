@@ -5,7 +5,7 @@ This block is used to display a list of tweets. It can display a tweet based on 
 ## Requirements
 This block requires the following libraries:
 - tweets.js
-- tweet.css (you may change this file)
+- tweet.css (you may change the contents of this file)
 
 ```html
 <script src="/static/lib/tweets.js"></script>

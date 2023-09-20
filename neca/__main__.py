@@ -71,8 +71,11 @@ def create(project_name: str = ""):
     # convert the tutorial name to the path
     template = list(templates.keys())[list(templates.values()).index(template)]
 
-
+    # copy the template to the project folder 
     shutil.copytree(template, project_path)
+    
+    if not (project_path / "static").exists():
+        shutil.copytree(path / "statics", project_path / "static")
 
     rprint(f"[green]project '{project_name}' created[/green]")
 
