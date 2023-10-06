@@ -12,7 +12,7 @@ requirements = [
 
 setup(
     name='neca',
-    version='2.1.1',
+    version='2.1.2',
     description='ECA: Event Condition Action ',
     long_description=pathlib.Path('README.md').read_text(),
     long_description_content_type='text/markdown',
@@ -47,7 +47,7 @@ setup(
     install_requires=requirements,
     include_package_data=True,
     package_data={
-        "neca": ["templates/*", "tutorials/*", "demos/*"],
+        "neca": ["templates/*", "tutorials/*", "demos/*", "statics/*"],
     },
     
     entry_points={

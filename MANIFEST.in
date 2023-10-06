@@ -1,3 +1,4 @@
 recursive-include neca/templates *
 recursive-include neca/tutorials *
 recursive-include neca/demos *
+recursive-include neca/statics *

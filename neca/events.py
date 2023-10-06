@@ -100,8 +100,8 @@ class Ruleset:
             # check if the function does have a context and data argument
             if not callable(func):
                 raise ValueError("function is not callable")
-            if func.__code__.co_argcount < 2 or func.__code__.co_argcount - len(func.__defaults__ or []) >= 2:
-                raise ValueError(f"event handler '{func.__name__}' has {func.__code__.co_argcount - len(func.__defaults__ or [])} required argument(s), but should have 2")
+            #if func.__code__.co_argcount < 2 or func.__code__.co_argcount - len(func.__defaults__ or []) >= 2:
+                #raise ValueError(f"event handler '{func.__name__}' has {func.__code__.co_argcount - len(func.__defaults__ or [])} required argument(s), but should have 2")
 
 
             # get or create the rule
