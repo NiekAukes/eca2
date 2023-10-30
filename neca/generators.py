@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Optional, Callable, Generator
+from typing import Optional, Callable, Generator, Tuple
 from neca.events import *
 import json
+
+import threading
 
 def tweet_generator(data_file: str) -> Generator[dict, None, None]:
     """
@@ -21,16 +23,17 @@ def tweet_generator(data_file: str) -> Generator[dict, None, None]:
     - The input file should contain one JSON-encoded tweet object per line.
     """
 
-    for line in open(data_file, 'r'):
+    for line in open(data_file, 'r', encoding='utf-8'):
         tweet = json.loads(line)
         yield tweet
 
-def generate_offline_tweets(data_file: str, 
+def generate_data(data_file: str, 
                           time_scale: int = 1000, 
                           event_name: str = 'tweet', 
                           context: Optional[Context] = None, 
                           limit: Optional[int] = None,
-                          generator: Callable[[str], Generator] = tweet_generator) -> None:
+                          generator: Callable[[str], Generator] = tweet_generator,
+                          timestamp_signature: Tuple[str,str] = ('created_at','%a %b %d %H:%M:%S %z %Y')) -> threading.Thread:
     """
     Generate and emit tweet objects from a data file as events.
 
@@ -44,21 +47,35 @@ def generate_offline_tweets(data_file: str,
     - event_name (str, optional): The name of the event to which the tweets should be emitted. Default is 'tweet'.
     - context (Context, optional): The context in which to emit the events. If None, events are not emitted.
     - limit (int, optional): The maximum number of tweets to emit. If None, all tweets from the file are emitted.
-    - generator (Callable[[str], Generator], optional): The generator function used to read and parse tweets from the file.
+    - generator (Callable[[str], Generator], optional): The generator function used to read and parse data from the file.
       Default is 'tweet_generator'.
+    - timestamp_signature (Tuple[str,str], optional): The signature of the timestamp field (name, format) in the data file.
+      Default is ('created_at','%a %b %d %H:%M:%S %z %Y').
 
     Note:
-    - The 'tweet_generator' function should be a Callable that takes a line of text from the data file as input
-      and yields tweet objects.
+    - The generator function should be a Callable that takes the data file as input
+      and yields data objects.
 
     Example usage:
     ```python
     # Generate and emit tweets from a data file
-    generate_offline_tweets('tweets.txt', time_scale=1000, event_name='new_tweet', limit=100)
+    generate_data('tweets.txt', time_scale=1000, event_name='new_tweet', limit=100)
     ```
     """
+    thread = threading.Thread(target=__generate_data, args=(data_file, time_scale, event_name, context, limit, generator, timestamp_signature))
+    thread.start()
+    return thread
+
+def __generate_data(data_file: str, 
+                          time_scale: int = 1000, 
+                          event_name: str = 'tweet', 
+                          context: Optional[Context] = None, 
+                          limit: Optional[int] = None,
+                          generator: Callable[[str], Generator] = tweet_generator,
+                          timestamp_signature: Tuple[str,str] = ('created_at','%a %b %d %H:%M:%S %z %Y')) -> None:
     
     begin_time = None
+    begin_actual_time = datetime.now()
     last_time = datetime.now()
     
     if context is None:
@@ -74,7 +91,8 @@ def generate_offline_tweets(data_file: str,
         
         
         # get the time of the tweet
-        tweet_time = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S %z %Y')
+        tweet_time = datetime.strptime(tweet[timestamp_signature[0]], timestamp_signature[1])
+                    #datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S %z %Y')
         
         # wait until the tweet should be emitted
         # based on the last tweet time and the time scale
@@ -90,16 +108,19 @@ def generate_offline_tweets(data_file: str,
         wait = tweet_time - begin_time
         delay = wait.total_seconds() / time_scale
         
-        real_delay = (tweet_time - last_time).total_seconds() / time_scale
+        real_delay = delay - (datetime.now() - begin_actual_time).total_seconds()
         
         # cap the wait time to prevent it taking too long
         # cap at 2 hours at timescale 1
         if real_delay > 2 * 60 * 60 / time_scale:
-            delay = ((last_time - begin_time).total_seconds() + 2 * 60 * 60) / time_scale
+            real_delay = ((last_time - begin_time).total_seconds() + 2 * 60 * 60) / time_scale
             
         last_time = tweet_time
+
+        if real_delay < 0:
+            print("Warning: tweet emitted too late, delay was", real_delay)
         
-        context.fire(event_name, tweet, delay)
+        context.fire(event_name, tweet, real_delay)
             
             
 def print_tweet(tweet):

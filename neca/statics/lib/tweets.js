@@ -16,6 +16,13 @@ function tweets(id, config = {
     }
 
     function buildUser(tweet) {
+        if (tweet.user == undefined) {
+            var user = tweet;
+        } else {
+            var user = tweet.user;
+        }
+
+
         // create the wrapper
         var wrap = document.createElement("div");
         wrap.className = "tweet-user";
@@ -23,14 +30,15 @@ function tweets(id, config = {
         // add the name
         var name = document.createElement("p");
         name.className = "tweet-user-name";
-        name.innerHTML = tweet.user.name;
+        name.innerHTML = user.name
+        
         wrap.appendChild(name);
 
         // add the screen name / handle / username
         var screenName = document.createElement("a");
         screenName.className = "tweet-user-screen-name";
-        screenName.innerHTML = "@" + tweet.user.screen_name;
-        screenName.href = "https://twitter.com/" + tweet.user.screen_name;
+        screenName.innerHTML = "@" + user.screen_name;
+        screenName.href = "https://twitter.com/" + user.screen_name;
         wrap.appendChild(screenName);
 
         return wrap;
@@ -42,6 +50,9 @@ function tweets(id, config = {
         text.innerHTML = tweet.text;
 
         // use the intities to build links
+        if (tweet.entities == undefined) {
+            return text;
+        }
         var entities = tweet.entities;
 
         // replace the user mentions

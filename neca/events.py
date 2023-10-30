@@ -39,7 +39,7 @@ from typing import Callable, Any, Dict, List, Optional
 from neca.log import logger
 from datetime import datetime, timedelta
 import neca.settings as settings
-from threading import Lock
+from threading import RLock
 
 
 
@@ -97,12 +97,10 @@ class Ruleset:
         """
         
         def decorator(func: Callable[["Context", Any], None]):
-            # check if the function does have a context and data argument
+            # check if the function is callable
             if not callable(func):
                 raise ValueError("function is not callable")
-            #if func.__code__.co_argcount < 2 or func.__code__.co_argcount - len(func.__defaults__ or []) >= 2:
-                #raise ValueError(f"event handler '{func.__name__}' has {func.__code__.co_argcount - len(func.__defaults__ or [])} required argument(s), but should have 2")
-
+            
 
             # get or create the rule
             rule = self.functions.get(func, Ruleset.Rule(func, []))
@@ -182,7 +180,7 @@ class Context:
     def __str__(self) -> str:
         return f"Context({self.name})"
     
-    def fire(self, key: str, data: Any = None, delay: Optional[float] = None):
+    def fire(self, event_name: str, data: Any = None, delay: Optional[float] = None):
         """
         emits an event with the given name in the current context.
         When this function is called, every function annotated with @event(key) is called.
@@ -192,7 +190,7 @@ class Context:
         data: the data to pass to the event handlers
         delay: the delay in seconds before the event is fired
         """
-        Manager.add_event(key, data, self, delay)
+        Manager.add_event(event_name, data, self, delay)
     
     def fire_immediate(self, key: str, data: Any):
         """
@@ -217,7 +215,11 @@ class Context:
         for rule in rules:
             if rule.check_conditions(self, data):
                 # call the function
-                rule.func(self, data)
+                try:
+                    rule.func(self, data)
+                except TypeError as e:
+                    logger.error(f"error while calling function {rule.func.__name__} for event {key}: {e}")
+                    logger.warn(f"is your function missing an argument? event handlers should have the signature: func(context, event)")
             else:
                 # send a debug message
                 logger.debug(f"rule for {rule.func} did not meet conditions for event: {key}")
@@ -255,7 +257,7 @@ class Manager:
 
     # lock for the pending events, add_event may be 
     # called from multiple threads
-    _lock = Lock()
+    _lock = RLock()
     
     pending_event_keys: List[PendingEvent] = []
     
@@ -272,6 +274,7 @@ class Manager:
         fire_global("init", None)
         while True:
             # sort the pending events by timestamp + delay
+            Manager._lock.acquire()
             Manager.pending_event_keys.sort(key=lambda x: x.stamped + timedelta(seconds=x.delay or 0))
             
             # loop over the pending events
@@ -284,8 +287,9 @@ class Manager:
                     Manager.pending_event_keys.remove(pending_event)
                 else:
                     break
-            # sleep for 1 ms
-            sleep(0.001)
+            Manager._lock.release()
+            # sleep for 10 ms
+            sleep(0.01)
     
     @staticmethod
     def add_event(key: str, data: Any, context: Context, delay: Optional[float] = None):

@@ -17,8 +17,8 @@ logger.setLevel(logging.DEBUG)
 
 # binds the 'setup' function as the action for the 'init' event
 # the action will be called with the context and the event
-@event('init')
-def setup(ctx, e):
+#@event('init')
+def setup(ctx):
     ctx["count"] = 0
     ctx.fire('sample', {'previous': 0.0})
 

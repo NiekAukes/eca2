@@ -41,7 +41,7 @@ def start(debug=True):
     
     
     #app.run(debug=debug, use_reloader=False)
-    socket.run(app, debug=debug, use_reloader=False)
+    socket.run(app, debug=debug, use_reloader=False, allow_unsafe_werkzeug=True,log_output=True)
 
 
 if __name__ == '__main__':

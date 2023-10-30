@@ -9,6 +9,6 @@ function your_block_name(id, config = {}) {
         // handle data events given by the server part of your application
     }
 
-    // return the onEvent function and the id
+    // return the onEvent function
     return onEvent;
 }
