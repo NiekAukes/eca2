@@ -9,6 +9,7 @@ from flask_socketio import SocketIO as Sock
 
 import logging
 import neca.settings as settings
+from neca.events import fire_global
 
 
 
@@ -28,10 +29,12 @@ def index():
 @socket.on('connect')
 def connect():
     print("connected")
+    fire_global('connect', None)
     
 @socket.on('disconnect')
 def disconnect():
     print("disconnected")
+    fire_global('disconnect', None)
 
 
 def start(debug=True):
