@@ -117,8 +117,6 @@ def __generate_data(data_file: str,
             
         last_time = tweet_time
 
-        if real_delay < 0:
-            print("Warning: tweet emitted too late, delay was", real_delay)
         
         context.fire(event_name, tweet, real_delay)
             

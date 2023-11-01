@@ -59,5 +59,14 @@ This example is also available as a demo
 </form>
 ```
 
+```py
+@app.route("/api/form", methods=["POST"])
+def form():
+    data = request.json
+    fire_global("form_event", data)
+    return "ok", 200
+```
+
+
 ### Result
 ![form](../img/form.png)

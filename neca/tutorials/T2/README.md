@@ -14,7 +14,7 @@ in neca, your main HTML page is located in `templates/index.html`. this is the p
 NECA uses blocks to display graphs and other visuals on your web page. There are multiple Block types available, all with their own .js file in the `static/lib` folder. Each block type has its own set of parameters, which can be found in the wiki entry on [blocks](https://github.com/NiekAukes/eca2/wiki/Blocks).
 
 ### Task 1: Create a line_chart block
-create a line chart block on your page. you can use the wiki page on [line charts (TODO!!)](https://github.com/NiekAukes/eca2/wiki/Blocks) to find out how to do this. make sure to give it a unique id, for example `my_chart`.
+create a line chart block on your page. you can use the wiki page on [line charts](line-chart) to find out how to do this. make sure to give it a unique id, for example `my_chart`.
 
 <details>
 <summary>Hint 1 (HTML)</summary>
@@ -34,7 +34,7 @@ create a new `<div>` element with inside it a `<canvas>` element. give the `<can
 create a new `line_chart` block with the id you gave the `<canvas>` element.
 
 ```js
-let my_chart_handler = line_chart("my_chart");
+let my_chart_handler = linechart("my_chart");
 ```
 
 </details>
@@ -47,7 +47,7 @@ let my_chart_handler = line_chart("my_chart");
     <canvas id="my_chart"></canvas>
 </div>
 <script>
-    var my_chart_handler = line_chart("my_chart");
+    var my_chart_handler = linechart("my_chart");
 </script>
 ```
 </details>
@@ -56,7 +56,7 @@ let my_chart_handler = line_chart("my_chart");
 to connect blocks to your python code, you need to use the `connect_block()` function. This function takes 2 arguments, first the block itself, and second the key that will be used to identify the data that is sent to the block. the key can be any string, but it is recommended to use a descriptive name. for example, if you are sending data about the temperature, you could use `temperature` as the key.
 ```html
 <script>
-    let my_chart_handler = line_chart("my_chart");
+    let my_chart_handler = linechart("my_chart");
     connect_block(my_chart_handler, "temperature");
 </script>
 ```
@@ -70,7 +70,7 @@ connect the line_chart block to your python code using the `connect_block()` fun
     
 ```html
 <script>
-    let my_chart_handler = line_chart("my_chart");
+    let my_chart_handler = linechart("my_chart");
     connect_block(my_chart_handler, "sine");
 </script>
 ```
@@ -150,7 +150,7 @@ def sine(context, data):
 
 ```python
 @event("init")
-def init():
+def init(context, data):
     fire_global("sinewave", 0)
 
 @event("sinewave")
@@ -163,3 +163,4 @@ def sine(context, data):
     })
     fire_global("sinewave", x+0.1, delay=0.1)
 ```
+</details>
