@@ -8,3 +8,6 @@ build.bat
 *.egg-info/
 .vscode/
 ttt
+
+example.py
+template.py
