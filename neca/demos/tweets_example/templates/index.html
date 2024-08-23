@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tweets Example</title>
+
+    <script src="/static/lib/socket.io.js"></script>
+    <script src="/static/lib/core.js"></script>
+    <script src="/static/lib/tweets.js"></script>
+
+    <link rel="stylesheet" href="/static/style/tweet.css" />
+</head>
+<body>
+    <div id="tweets"></div>
+    <script>
+        var tweet = tweets("tweets");
+        connect_block(tweet, 'x');
+    </script>
+</body>
+</html>

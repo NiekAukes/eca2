@@ -34,7 +34,9 @@ demo_names = {
     "form_example": "Form Example",
     "line_chart_example": "Line Chart Example",
     "pie_chart_example": "Pie Chart Example",
-    "linear_chart_example": "Linear Chart Example"
+    "linear_chart_example": "Linear Chart Example",
+    "map_example": "Map Example",
+    "tweets_example": "Tweets Example",
 }
 demos = {path.absolute(): demo_names[path.name] for path in (path / "demos").iterdir() if path.is_dir()}
 templates.update(demos)
