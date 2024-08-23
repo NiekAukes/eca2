@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Neca Test</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.2/chart.umd.min.js" integrity="sha512-ziISJqd7FOx3QNvnXiFWAfgSKqte9jMjzhrCnc7Gxpxfxjb5FdrBFg673DloeFEH6VLmTeo86yu5y/xJm38cBg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- LEAFLET: -->
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet JS - Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script src="/static/lib/core.js"></script>
+<script src="/static/lib/map.js"></script>
+<script src="/static/lib/log.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 98vh"></div>
+    <script>
+            let map = leaflet("map");
+            connect_block(map, "map");
+        
+    </script>
+</body>
+
+</html>
