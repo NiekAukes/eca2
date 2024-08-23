@@ -1,7 +1,3 @@
-import sys
-# add the path to the engine
-sys.path.append("C:\\Users\\Nieka\\Documents\\Projects\\eca2")
-
 import neca
 from neca.events import *
 from neca.log import logger
