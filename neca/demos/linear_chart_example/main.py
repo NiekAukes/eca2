@@ -6,16 +6,19 @@ from neca.events import *
 
 @event("init")
 def init(context, data):
-    fire_global("init10", None, delay=10)
+    print("init")
 
-@event("init10")
-def init10(context, data):
+@event("connect")
+def connect(context, data):
     emit('chart', {
         'action': 'set',
         'series': 'series1',
         'value': [[1, 2], [2, 3], [3, 4]]
     })
+    fire_global('add', None, delay=2)
 
+@event("add")
+def add45(context, data):
     emit('chart', {
         'action': 'add',
         'series': 'series1',

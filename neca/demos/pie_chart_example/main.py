@@ -3,10 +3,24 @@ from neca.events import *
 
 @event("init")
 def init(context, data):
-    fire_global("init5", None, delay=5)
+    print("init")
 
-@event("init5")
-def init5(context, data):
+@event("connect")
+def connect(context, data):
+    emit('piechart', {
+        'action': 'set',
+        'value': ['Blue', 5]
+    })
+
+    emit('piechart', {
+        'action': 'add',
+        'value': ['Green', 15]
+    })
+
+    fire_global('after5', None, delay=5)
+
+@event("after5")
+def after5(context, data):
     emit("piechart", {
         "action": "set",
         "value": ["Red", 10]
@@ -14,7 +28,7 @@ def init5(context, data):
 
     emit("piechart", {
         "action": "add",
-        "value": ["Yellow", 20]
+        "value": ["Blue", 20]
     })
 
 

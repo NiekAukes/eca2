@@ -3,10 +3,10 @@ from neca.events import *
 
 @event("init")
 def init(context, data):
-    fire_global("init5", None, delay=5)
+    print("init")
 
-@event("init5")
-def init5(context, data):
+@event("connect")
+def connect(context, data):
     emit("linechart", {
         "action": "set",
         "value": ["Sunday", 10]
