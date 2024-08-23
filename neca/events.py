@@ -215,11 +215,13 @@ class Context:
         for rule in rules:
             if rule.check_conditions(self, data):
                 # call the function
-                try:
+                #try:
                     rule.func(self, data)
-                except TypeError as e:
-                    logger.error(f"error while calling function {rule.func.__name__} for event {key}: {e}")
-                    logger.warn(f"is your function missing an argument? event handlers should have the signature: func(context, event)")
+                #except TypeError as e:
+                    #logger.error(f"error while calling function {rule.func.__name__} for event {key}: {e}")
+                    #logger.warn(f"is your function missing an argument? event handlers should have the signature: func(context, event)")
+                # Try catch block commented out because it was causing unrelated errors to be caught
+
             else:
                 # send a debug message
                 logger.debug(f"rule for {rule.func} did not meet conditions for event: {key}")
