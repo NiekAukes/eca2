@@ -56,8 +56,13 @@ function linearchart(id, config = {}) {
             console.error("No action given");
             return;
         }
-
-        if (data.action == "set") {
+        if (data.action == "data") {
+            // replace the entire data with the new data
+            chart.data = data.value;
+            // update the chart
+            chart.update();
+        }
+        else if (data.action == "set") {
             // set the entire dataset of the series
 
             // get the series

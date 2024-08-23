@@ -19,8 +19,12 @@ function linechart(id, config = {}) {
     });
 
     function onEvent(data) {
-        // data = {action: "set/add/reset", value: [category: string, value: int]}
-        if (data.action === "set") {
+        // data = {action: "data/set/add/reset/remove", value: [category: string, value: int]}
+        if (data.action === "data") {
+            // replace the entire data with the new data
+            chart.data = data.value;
+        }
+        else if (data.action === "set") {
              // if the category doesn't exist, add it
             let category = data.value[0];
             if (!chart.data.labels.includes(category)) {
@@ -46,6 +50,16 @@ function linechart(id, config = {}) {
         }
         else if (data.action === "reset") {
             chart.data.datasets[0].data = [];
+        }
+        else if (data.action === "remove") {
+            // remove the category from the data and labels
+            let category = data.value[0];
+            // find the index of the category
+            let index = chart.data.labels.indexOf(category);
+            if (index > -1) {
+                chart.data.labels.splice(index, 1);
+                chart.data.datasets[0].data.splice(index, 1);
+            }
         } else {
             console.warn("Invalid action: " + data.action);
         }
