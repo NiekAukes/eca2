@@ -31,7 +31,7 @@ def increment(context, data):
         "action": "draw",
         "type": "circle",
         "name": "cork",
-        "style": {
+        "options": {
             "fillOpacity": 0.5,
             "radius": 300,
         },	
@@ -41,7 +41,7 @@ def increment(context, data):
         "action": "draw",
         "type": "line",
         "name": "lork",
-        "style": {
+        "options": {
             "color": "red",
             "weight": 5,
         },

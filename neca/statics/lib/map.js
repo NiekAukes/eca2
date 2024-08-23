@@ -17,7 +17,8 @@ function leaflet(id, config = {}) {
     // add the OpenStreetMap tiles
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        ...config.leafletOptions || {}
     }).addTo(m);
 
     function onEvent(data) {
@@ -43,16 +44,16 @@ function leaflet(id, config = {}) {
             }
 
             if (data.type === "marker") {
-                entities[data.name] = drawMarker(data.coordinates, data.style || {});
+                entities[data.name] = drawMarker(data.coordinates, data.options || {});
             }
             else if (data.type === "circle") {
-                entities[data.name] = drawCircle(data.coordinates, data.style || {});
+                entities[data.name] = drawCircle(data.coordinates, data.options || {});
             }
             else if (data.type === "line") {
-                entities[data.name] = drawLine(data.coordinates, data.style || {});
+                entities[data.name] = drawLine(data.coordinates, data.options || {});
             }
             else if (data.type === "polygon") {
-                entities[data.name] = drawPolygon(data.coordinates, data.style || {});
+                entities[data.name] = drawPolygon(data.coordinates, data.options || {});
             }
         }
         else if (data.action === "remove") {
@@ -71,26 +72,30 @@ function leaflet(id, config = {}) {
         m.on(event, callback);
     }
 
-    function drawMarker(coordinates, style) {
-        let marker = L.marker(coordinates, {...style}).addTo(m);
+    function drawMarker(coordinates, options) {
+        let marker = L.marker(coordinates, {...options}).addTo(m);
         return marker;
     }
     
-    function drawCircle(coordinates, style) {
-        let circle = L.circle(coordinates, {radius: 20, weight:5, 'opacity':0.65, ...style}).addTo(m);
+    function drawCircle(coordinates, radius, options) {
+        let circle = L.circle(coordinates, {radius: radius, weight:5, 'opacity':0.65, ...options}).addTo(m);
         return circle;
     }
-    function drawLine(coordinates, style) {
-        let line = L.polyline(coordinates, {weight:5, 'opacity':0.65, ...style}).addTo(m);
+    function drawLine(coordinates, options) {
+        let line = L.polyline(coordinates, {weight:5, 'opacity':0.65, ...options}).addTo(m);
         return line;
     }
-    function drawPolygon(coordinates, style) {
-        let polygon = L.polygon(coordinates, {weight:5, 'opacity':0.65, ...style}).addTo(m);
+    function drawPolygon(coordinates, options) {
+        let polygon = L.polygon(coordinates, {weight:5, 'opacity':0.65, ...options}).addTo(m);
         return polygon;
     }
 
     function addEntity(name, entity) {
-        entities[entity.name] = entity;
+        entities[name] = entity;
+    }
+
+    function getEntity(name) {
+        return entities[name];
     }
 
     function removeEntity(name) {
@@ -111,6 +116,7 @@ function leaflet(id, config = {}) {
 
         // entity functions
         addEntity: addEntity,
+        getEntity: getEntity,
         removeEntity: removeEntity,
 
         // internal map
