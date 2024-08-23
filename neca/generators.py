@@ -3,6 +3,8 @@ from typing import Optional, Callable, Generator, Tuple
 from neca.events import *
 import json
 
+from neca.log import logger
+
 import threading
 
 def tweet_generator(data_file: str) -> Generator[dict, None, None]:
@@ -77,6 +79,8 @@ def __generate_data(data_file: str,
     begin_time = None
     begin_actual_time = datetime.now()
     last_time = datetime.now()
+
+    already_warned = False
     
     if context is None:
         context = Manager.global_context
@@ -117,12 +121,12 @@ def __generate_data(data_file: str,
             
         last_time = tweet_time
 
+        if real_delay < 0 and not already_warned:
+            logger.warning("Tweet delay is negative! This may cause problems with the simulation. decrease the time scale for an accurate simulation.")
+            already_warned = True
+
         
-        context.fire(event_name, tweet, real_delay)
-            
-            
-def print_tweet(tweet):
-    print_object(tweet)
+        context.fire(event_name, tweet, delay=real_delay)
         
 
 def print_object(object, tab_level=0):

@@ -117,6 +117,14 @@ function tweets(id, config = {
     }
     
     function onEvent(data) {
+        if (data == undefined) {
+            // remove all the tweets
+            for (let i = 0; i < element.children.length; i++) {
+                element.removeChild(element.children[i]);
+            }
+            return; 
+        }
+        
         var tweet = buildTweet(data);
         
         // add the tweet to the element

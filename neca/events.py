@@ -35,7 +35,7 @@ emit("browser_event", {"message": "Hello, world!"})
 """
 
 from time import sleep
-from typing import Callable, Any, Dict, List, Optional
+from typing import Callable, Any, Dict, List, Optional, Tuple
 from neca.log import logger
 from datetime import datetime, timedelta
 import neca.settings as settings
@@ -58,10 +58,18 @@ class Ruleset:
         mostly used for internal bookkeeping. If you're a user,
         you probably won't need to use this class directly.
         """
-        def __init__(self, func: Callable[["Context", Any], None], keys: List[str]):
+        def __init__(self, 
+                     func: Callable[["Context", Any], None], 
+                     keys: List[str], 
+                     varnames: Tuple[str], 
+                     min_args: int,
+                     include_context: bool = False):
             self.func = func
             self.conditions = []
             self.keys = keys
+            self.varnames = varnames
+            self.min_args = min_args
+            self.include_context = include_context
             
         def add_condition(self, condition: Callable[["Context", Any], bool]):
             """
@@ -69,18 +77,18 @@ class Ruleset:
             """
             self.conditions.append(condition)
             
-        def check_conditions(self, context: Any, event: Any) -> bool:
+        def check_conditions(self, context: Any, args, kwargs) -> bool:
             """
             checks if all conditions are met.
             """
             for condition in self.conditions:
-                if not condition(context, event):
+                if not condition(context, *args, **kwargs):
                     return False
             return True
             
     
     def __init__(self):
-        self.functions: Dict[Callable[["Context", Any], None], Ruleset.Rule] = {}
+        self.functions: Dict[Callable[..., None], Ruleset.Rule] = {}
         
         # a dictionary of rules, indexed by event name
         # "eventname": [rule1, rule2, ...]
@@ -96,24 +104,41 @@ class Ruleset:
         on the key given to this decorator.
         """
         
-        def decorator(func: Callable[["Context", Any], None]):
+        def decorator(func: Callable[..., None]):
             # check if the function is callable
             if not callable(func):
                 raise ValueError("function is not callable")
             
+            # if the arg count is greater than 0, include the context
+            include_context = func.__code__.co_argcount > 0
 
-            # get or create the rule
-            rule = self.functions.get(func, Ruleset.Rule(func, []))
-            rule.keys.append(key)
+            # get the function arguments, these are the first n variables of the function
+            argnames =  func.__code__.co_varnames[:func.__code__.co_argcount]
             
+            # get or create the rule
+            rule: Ruleset.Rule = self.functions.get(func, Ruleset.Rule(
+                func, 
+                [], 
+                argnames, 
+                func.__code__.co_argcount - len(func.__defaults__ or []), 
+                include_context))
+            rule.keys.append(key)
             
             # the function is indexed by the key
             if key not in self.index:
                 self.index[key] = []
+            else:
+                # check if the function arguments are equal to other functions with the same key
+                other_params = self.index[key][0].varnames
+                if len(other_params) <= 1 and len(rule.varnames) > 1:
+                    raise ValueError(f"""function '{func.__name__}' has data arguments, but other functions with key '{key}' do not.""")
+                elif other_params != rule.varnames and not (len(other_params) <= 1 and len(rule.varnames) <= 1):
+                    raise ValueError(f"""function '{func.__name__}' has different data arguments than other functions with key {key}.
+                    {func.__name__} has arguments: {rule.varnames}
+                    other functions have arguments: {other_params}""")
                 
             # check if the rule is already in the index
             if rule in self.index[key]:
-                # raise an error
                 raise ValueError(f"function already registered for event key: {key}. You can only register a function once per event key.")
             self.index[key].append(rule)
                 
@@ -136,18 +161,38 @@ class Ruleset:
     #    fire_global(eventname, data, delay)
 
 
-    def condition(self, condition: Callable[["Context", Any], bool]):
+    def condition(self, condition: Callable[..., bool]):
         """
         sets a condition for an event handler. 
         """
+
         
-        def decorator(func: Callable[["Context", Any], None]):
-            
+        
+        def decorator(func: Callable[..., None]):
             # check if function is registered
             if func not in self.functions:
                 # add the function to the rules with an empty keyset
-                self.functions[func] = Ruleset.Rule(func, [])
+                attached_function_argnames = func.__code__.co_varnames[:func.__code__.co_argcount]
+                self.functions[func] = Ruleset.Rule(func, 
+                                                    [], 
+                                                    attached_function_argnames, 
+                                                    func.__code__.co_argcount - len(func.__defaults__ or []),
+                                                    func.__code__.co_argcount > 0)
             
+            # check if the condition arguments are equal to the attached function
+            other_params = self.functions[func].varnames
+            condition_params = condition.__code__.co_varnames[:condition.__code__.co_argcount]
+
+            if len(other_params) <= 1 and len(condition_params) > 1:
+                raise ValueError(f"""condition '{condition.__name__}' has data arguments, but the attached function '{func.__name__}' does not.""")
+            elif other_params != condition_params and not (len(other_params) <= 1 and len(condition_params) <= 1):
+                raise ValueError(f"""condition '{condition.__name__}' has different data arguments than the attached function '{func.__name__}'.
+                {condition.__name__} has arguments: {condition_params}
+                {func.__name__} has arguments: {other_params}""")
+
+            
+
+
             # add the condition to the rule
             self.functions[func].add_condition(condition)
             return func
@@ -180,19 +225,44 @@ class Context:
     def __str__(self) -> str:
         return f"Context({self.name})"
     
-    def fire(self, event_name: str, data: Any = None, delay: Optional[float] = None):
+    def fire(self, event_name: str, *args, delay: Optional[float] = None, **kwargs):
         """
         emits an event with the given name in the current context.
         When this function is called, every function annotated with @event(key) is called.
         with the given context.
         
         key: the name of the event
-        data: the data to pass to the event handlers
         delay: the delay in seconds before the event is fired
+        args/kwargs: the arguments to pass to the event handlers
         """
-        Manager.add_event(event_name, data, self, delay)
+        # check if an event handler exists for this event
+        if event_name not in self.ruleset.index:
+            # no rules for this event, send a warning
+            # to notify what is going on
+            logger.warning(f"no rules for event: {event_name}")
+            return
+
+        # check if the args and kwargs are valid
+        expected_args = self.ruleset.index[event_name][0].varnames
+        kwargs_keys = set(kwargs.keys())
+
+        # throw error if not all kwargs are expected
+        if not kwargs_keys.issubset(set(expected_args)):
+            raise ValueError(f"unexpected keyword arguments: {kwargs_keys - set(expected_args)}")
+        
+        # take the remaining args and check with the expected args
+        if len(expected_args) > 1:
+            if len(args) > len(expected_args) - 1:
+                raise ValueError(f"too many positional arguments: {args[len(expected_args):]}")
+            if len(args) < self.ruleset.index[event_name][0].min_args - 1:
+                raise ValueError(f"not enough positional arguments: missing {expected_args[len(args):]}")
+        elif len(args) > 0:
+            raise ValueError(f"unexpected positional arguments: {args}")
+
+
+        Manager.add_event(event_name, self, delay, args, kwargs)
     
-    def fire_immediate(self, key: str, data: Any):
+    def fire_immediate(self, key: str, args: List[Any] = [], kwargs: Dict[str, Any] = {}):
         """
         emits an event with the given name in the current context.
         When this function is called, every function annotated with @event(key) is called.
@@ -201,7 +271,7 @@ class Context:
         WARNING: this function fires the event immediately, without waiting for the event loop.
         
         key: the name of the event
-        data: the data to pass to the event handlers
+        args/kwargs: the arguments to pass to the event handlers
         """
             
         # for now just use the global rules object
@@ -209,46 +279,50 @@ class Context:
         if rules == []:
             # no rules for this event, send a warning
             # to notify what is going on
+
+            # TODO: this technically can't happen anymore,
+            # because fire() checks if the event exists
             logger.warning(f"no rules for event: {key}")
             return
             
         for rule in rules:
-            if rule.check_conditions(self, data):
+            if rule.check_conditions(self, args, kwargs):
                 # call the function
-                try:
-                    rule.func(self, data)
-                except TypeError as e:
-                    logger.error(f"error while calling function {rule.func.__name__} for event {key}: {e}")
-                    logger.warn(f"is your function missing an argument? event handlers should have the signature: func(context, event)")
+                if rule.include_context:
+                    rule.func(self, *args, **kwargs)
+                else:
+                    rule.func(*args, **kwargs)
             else:
                 # send a debug message
                 logger.debug(f"rule for {rule.func} did not meet conditions for event: {key}")
         
-    
+class PendingEvent:
+    """
+    Data class for pending events.
+    """
+    def __init__(self, key: str, stamped: datetime,
+                    context: "Context", delay: Optional[float] = None, args: List[Any] = [], kwargs: Dict[str, Any] = {}):
+        """
+        key: the name of the event
+        stamped: the timestamp of when the event was created
+        context: the context for which the event was created
+        delay: the delay in seconds before the event is fired
+
+        args/kwargs: the arguments to pass to the event handlers
+        """
+        self.key = key
+        self.args = args
+        self.kwargs = kwargs
+        self.stamped = stamped
+        self.context = context
+        self.delay = delay
     
 
 class Manager:
     """
     the manager keeps track of the rules and contexts.
     """
-    class PendingEvent:
-        """
-        Data class for pending events.
-        """
-        def __init__(self, key: str, data: Any, stamped: datetime,
-                     context: Any = None, delay: Optional[float] = None):
-            """
-            key: the name of the event
-            data: the data to pass to the event handlers
-            stamped: the timestamp of when the event was created
-            context: the context for which the event was created
-            delay: the delay in seconds before the event is fired
-            """
-            self.key = key
-            self.data = data
-            self.stamped = stamped
-            self.context = context
-            self.delay = delay
+    
             
     global_ruleset: Ruleset = Ruleset()
     global_context: Context = Context(global_ruleset, "global")
@@ -259,10 +333,11 @@ class Manager:
     # called from multiple threads
     _lock = RLock()
     
+
     pending_event_keys: List[PendingEvent] = []
     
     @staticmethod
-    def eventLoop():
+    def eventLoop(stop_on_empty: bool = False):
         """
         the event keeps an eye on the events and calls the 'init' event when the engine starts.
         """
@@ -271,7 +346,7 @@ class Manager:
             
         sleep(0.1)
         logger.debug("calling init event")
-        fire_global("init", None)
+        fire_global("init")
         while True:
             # sort the pending events by timestamp + delay
             Manager._lock.acquire()
@@ -282,22 +357,27 @@ class Manager:
             for pending_event in Manager.pending_event_keys:
                 if pending_event.stamped + timedelta(seconds=pending_event.delay or 0) < datetime.now():
                     # fire the event
-                    pending_event.context.fire_immediate(pending_event.key, pending_event.data)
+                    pending_event.context.fire_immediate(pending_event.key, pending_event.args, pending_event.kwargs)
                     # remove the event from the list
                     Manager.pending_event_keys.remove(pending_event)
                 else:
                     break
+
+            if stop_on_empty and len(Manager.pending_event_keys) == 0:
+                # stop the event loop
+                Manager._lock.release()
+                return
             Manager._lock.release()
             # sleep for 10 ms
             sleep(0.01)
     
     @staticmethod
-    def add_event(key: str, data: Any, context: Context, delay: Optional[float] = None):
+    def add_event(key: str, context: Context, delay: Optional[float] = None, args: Tuple[Any, ...] = tuple(), kwargs: Dict[str, Any] = {}):
         """
         adds an event to the event loop. The event will be fired after the given delay.
         """
         Manager._lock.acquire()
-        Manager.pending_event_keys.append(Manager.PendingEvent(key, data, datetime.now(), context, delay))
+        Manager.pending_event_keys.append(PendingEvent(key, datetime.now(), context, delay, args, kwargs))
         Manager._lock.release()
     
     
@@ -322,7 +402,7 @@ def condition(condition: Callable[[Any, Any], bool]):
     return Manager.global_ruleset.condition(condition)
 
 
-def fire_global(eventname: str, data: Any, delay: Optional[float] = None):
+def fire_global(eventname: str, *args, delay: Optional[float] = None, **kwargs):
     """
     emits a global event with the given name in the global context.
     When this function is called, every function annotated with @event(key) is called.
@@ -332,15 +412,15 @@ def fire_global(eventname: str, data: Any, delay: Optional[float] = None):
     data: the data to pass to the event handlers
     delay: the delay in seconds before the event is fired
     """
-    Manager.add_event(eventname, data, Manager.global_context, delay)
+    Manager.global_context.fire(eventname, *args, delay=delay, **kwargs)
     
-def fire_all(eventname: str, data: Any, delay: Optional[float] = None):
+def fire_all(eventname: str, *args, delay: Optional[float] = None, **kwargs):
     """
     emits an event with the given name in every context.
     When this function is called, every function annotated with @event(key) is called.
     """
     for context in Manager.contexts:
-        Manager.add_event(eventname, data, context, delay)
+        context.fire(eventname, *args, delay=delay, **kwargs)
     
 
 def create_context(name: Optional[str] = None, ruleset: Optional[Ruleset] = None) -> Context:

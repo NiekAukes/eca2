@@ -1,8 +1,11 @@
 function form(id, config = {
-    target: null,
-    callback: function() {}
+    target: null
 }) {
     const element = document.getElementById(id);
+    if (!config.target) {
+        console.error("Form block #" + id + ": no target specified");
+        return;
+    }
 
     // find the form element in the block
     const form = element;
@@ -68,7 +71,7 @@ function form(id, config = {
             headers: {
                 "Content-Type": "application/json",
             }
-        }).then(config.callback);
+        })
 
     });
 
