@@ -53,7 +53,7 @@ function piechart(id, config = {}) {
         }
         else if (data.action === "remove") {
             // remove the category from the data and labels
-            let category = data.value[0];
+            let category = data.category;
             // find the index of the category
             let index = chart.data.labels.indexOf(category);
             if (index > -1) {
