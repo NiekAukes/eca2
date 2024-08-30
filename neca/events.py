@@ -168,6 +168,9 @@ class Context:
     def __getitem__(self, key: Any):
         return self._data[key]
     
+    def get(self, key: Any, default: Any = None):
+        return self._data.get(key, default)
+    
     def __setitem__(self, key, value):
         self._data[key] = value
     

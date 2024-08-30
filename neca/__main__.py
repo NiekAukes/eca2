@@ -37,6 +37,8 @@ demo_names = {
     "linear_chart_example": "Linear Chart Example",
     "map_example": "Map Example",
     "tweets_example": "Tweets Example",
+    "apexcharts_example": "Apex Charts Example",
+    "stocks_example": "Stocks Example",
 }
 demos = {path.absolute(): demo_names[path.name] for path in (path / "demos").iterdir() if path.is_dir()}
 templates.update(demos)

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Stock Chart Example</title>
+
+  <script src="/static/lib/socket.io.js"></script>
+  <script src="/static/lib/core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="/static/lib/apex.js"></script>
+</head>
+
+<body>
+  <!-- your code here -->
+  <div id="chart"></div>
+
+
+
+
+
+  <script>
+    var options = {
+      animations: {
+        enabled: false,
+      },
+      series: [
+        {
+          name: 'candle',
+          type: 'candlestick',
+          data: [
+          ]
+        },
+        {
+          name: 'uptrend',
+          type: 'line',
+          data: []
+        },
+        {
+          name: 'downtrend',
+          type: 'line',
+          data: []
+        }],
+      chart: {
+        height: 350,
+        type: 'line',
+      },
+      title: {
+        text: 'CandleStick Chart',
+        align: 'left'
+      },
+      stroke: {
+        width: [3, 1]
+      },
+      tooltip: {
+        shared: true,
+        custom: [function ({ seriesIndex, dataPointIndex, w }) {
+          return w.globals.series[seriesIndex][dataPointIndex]
+        }, function ({ seriesIndex, dataPointIndex, w }) {
+          var o = w.globals.seriesCandleO[seriesIndex][dataPointIndex]
+          var h = w.globals.seriesCandleH[seriesIndex][dataPointIndex]
+          var l = w.globals.seriesCandleL[seriesIndex][dataPointIndex]
+          var c = w.globals.seriesCandleC[seriesIndex][dataPointIndex]
+          return (
+            '<div class="apexcharts-tooltip-candlestick">' +
+            '<div>Open: <span class="value">' +
+            o +
+            '</span></div>' +
+            '<div>High: <span class="value">' +
+            h +
+            '</span></div>' +
+            '<div>Low: <span class="value">' +
+            l +
+            '</span></div>' +
+            '<div>Close: <span class="value">' +
+            c +
+            '</span></div>' +
+            '</div>'
+          )
+        }]
+      },
+      xaxis: {
+        type: 'datetime'
+      },
+      legend: {
+        position: 'bottom'
+      }
+    };
+
+    let chart = apexchart('chart', options)
+    connect_block(chart, 'stock')
+  </script>
+</body>
+
+</html>

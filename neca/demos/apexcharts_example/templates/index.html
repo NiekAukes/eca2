@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Apexcharts Example</title>
+
+  <script src="/static/lib/socket.io.js"></script>
+  <script src="/static/lib/core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="/static/lib/apex.js"></script>
+</head>
+
+<body>
+  <!-- your code here -->
+  <div id="chart" style="max-width: 800px"></div>
+
+  <script>
+    var options = {
+      chart: {
+        type: 'line'
+      },
+      series: [{
+        data: []
+      }]
+    };
+
+    let chart = apexchart('chart', options)
+    connect_block(chart, 'apex')
+  </script>
+</body>
+
+</html>
