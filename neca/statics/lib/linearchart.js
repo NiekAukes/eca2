@@ -64,7 +64,6 @@ function linearchart(id, config = {}) {
         }
         else if (data.action == "set") {
             // set the entire dataset of the series
-
             // get the series
             let series = data.series || chart.data.datasets[0].label;
 
