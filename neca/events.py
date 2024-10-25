@@ -358,15 +358,15 @@ def create_context(name: Optional[str] = None, ruleset: Optional[Ruleset] = None
     Manager.contexts.append(context)
     return context
 
-def emit(event, data, id=None):
+def emit(event, data, id = None, sid: str | None = None):
     """
     Emits a new event to the outside world (which is usually the browser).
 
     name: the name of the emitted event
     data: a piece of data that can be converted to JSON through json.dumps
     id: optional identifier to be emitted. None indicates no identifier is emitted.
-
+    sid: the session id to emit to. If None, the event is emitted to all sessions.
     """
     if id is not None:
         data.update({"id": id})
-    settings.socket.emit(event, data)
+    settings.socket.emit(event, data, to=sid)

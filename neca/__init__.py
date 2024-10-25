@@ -3,7 +3,7 @@ This is the main module for the ECA server. It contains the start function
 and provides access to the flask app object
 """
 
-from flask import render_template
+from flask import render_template, request
 from flask_socketio import SocketIO as Sock
 
 
@@ -29,12 +29,12 @@ def index():
 @socket.on('connect')
 def connect():
     print("connected")
-    fire_global('connect', None)
+    fire_global('connect', request.sid)
     
 @socket.on('disconnect')
 def disconnect():
     print("disconnected")
-    fire_global('disconnect', None)
+    fire_global('disconnect', request.sid)
 
 
 def start(debug=True):
