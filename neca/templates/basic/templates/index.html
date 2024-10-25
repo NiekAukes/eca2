@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Rename this!</title>
+  <head>
+    <title>Rename this!</title>
 
-<script src="/static/lib/socket.io.js"></script>
-<script src="/static/lib/core.js"></script>
-</head>
-<body>
+    <script>
+      // this prevents the page from being opened as a file
+      if (window.location.protocol === "file:") {
+        alert("Please open this file from the server");
+        window.location = "http://localhost:5000/";
+      }
+    </script>
+
+    <script src="/static/lib/socket.io.js"></script>
+    <script src="/static/lib/core.js"></script>
+  </head>
+  <body>
     <!-- your code here -->
-</body>
+  </body>
 </html>
