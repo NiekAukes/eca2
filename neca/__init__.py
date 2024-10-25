@@ -37,14 +37,19 @@ def disconnect():
     fire_global('disconnect', request.sid)
 
 
-def start(debug=True):
+def start(debug=True, port=3000):
     # start the event loop on a separate thread
     #settings.init()
     eventThread.start()
     
     
     #app.run(debug=debug, use_reloader=False)
-    socket.run(app, debug=debug, use_reloader=False, allow_unsafe_werkzeug=True,log_output=True)
+    socket.run(app, 
+               debug=debug, 
+               use_reloader=False, 
+               allow_unsafe_werkzeug=True,
+               log_output=True,
+               port=port)
 
 
 if __name__ == '__main__':
