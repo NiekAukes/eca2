@@ -4,12 +4,11 @@ const socket = io({
     autoConnect: false
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    socket.connect();
-    socket.on('connect', function () {
-        console.log("Connected to server");
-    });
+socket.on('connect', function () {
+    console.log("Connected to server");
 });
+
+document.addEventListener("DOMContentLoaded", () => socket.connect());
 
 // create new connections between blocks and events
 // when the connect() function is called in the template
