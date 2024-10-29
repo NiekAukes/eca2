@@ -1,12 +1,14 @@
 // connect a websocket to the server
 
-const SERVER_URL = "localhost:8080"
-var socket = io();
+const socket = io({
+    autoConnect: false
+});
 
-socket.on('connect', function() {
+socket.on('connect', function () {
     console.log("Connected to server");
 });
 
+document.addEventListener("DOMContentLoaded", () => socket.connect());
 
 // create new connections between blocks and events
 // when the connect() function is called in the template
