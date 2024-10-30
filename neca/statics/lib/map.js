@@ -1,10 +1,8 @@
 function leaflet(id, config = {}) {
-    const element = document.getElementById(id);
-
     // create the map, and set the view to the default location
     let default_location = config.location || [52.221539, 6.893662];
     let default_zoom = config.zoom || 12.25;
-    let m = L.map('map').setView(default_location, default_zoom);
+    let m = L.map(id).setView(default_location, default_zoom);
     
     // create an entity map to store the entities created
     let entities = {};
